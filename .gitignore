@@ -10,10 +10,17 @@ HRAnalyticsDashboard/bin/
 HRAnalyticsDashboard/obj/
 HRAnalyticsDashboard/appsettings.json
 HRAnalyticsDashboard/appsettings.Local.json
+HRAnalyticsDashboard/wwwroot/css/**/*.map
 
 prof_pdf_extract/
 prof_pdf_extract2/
 pdf_pages/
+Data/_ssas_*/
+Data/ai4i2020*.csv
+tech_competences_website_crm/
+tech_competences_website_crm_fix/
+rapport_projet_tech_competences.md
+support_view_*.txt
 
 *_snapshot*.html
 _tmp_*.html
