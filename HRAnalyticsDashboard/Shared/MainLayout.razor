@@ -1,0 +1,118 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_theme" IsDarkMode="_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Class="@($"dashboard-layout {(_isDarkMode ? "theme-dark" : "theme-light")}")">
+    <MudDrawer @bind-Open="_drawerOpen"
+               Variant="DrawerVariant.Responsive"
+               Elevation="0"
+               ClipMode="DrawerClipMode.Always"
+               Width="290px"
+               Class="dashboard-drawer">
+        <NavMenu />
+    </MudDrawer>
+
+    <MudMainContent Class="dashboard-main">
+        <div class="dashboard-topbar">
+            <div class="dashboard-topbar__left">
+                <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                               Size="Size.Medium"
+                               Class="topbar-button"
+                               OnClick="@ToggleDrawer" />
+
+                <div class="dashboard-topbar__search">
+                    <MudIcon Icon="@Icons.Material.Filled.Search" Class="topbar-search__icon" />
+                    <input type="text" placeholder="Rechercher des indicateurs, rapports ou insights RH..." />
+                    <span class="topbar-search__shortcut">DW</span>
+                </div>
+            </div>
+
+            <div class="dashboard-topbar__right">
+                <div class="topbar-pill topbar-pill--ghost">
+                    <MudIcon Icon="@Icons.Material.Filled.CalendarMonth" Size="Size.Small" />
+                    <span>Mai 2026</span>
+                </div>
+
+                <button type="button" class="theme-toggle" @onclick="ToggleTheme">
+                    <MudIcon Icon="@(_isDarkMode ? Icons.Material.Outlined.LightMode : Icons.Material.Outlined.DarkMode)" Size="Size.Small" />
+                    <span>@(_isDarkMode ? "Sombre" : "Clair")</span>
+                </button>
+
+                <MudIconButton Icon="@Icons.Material.Outlined.Notifications"
+                               Size="Size.Medium"
+                               Class="topbar-button" />
+
+                <div class="profile-pill">
+                    <MudAvatar Variant="Variant.Filled" Color="Color.Primary" Size="Size.Medium">
+                        KN
+                    </MudAvatar>
+
+                    <div class="profile-pill__meta">
+                        <span class="profile-pill__name">Karray Nour</span>
+                        <span class="profile-pill__role">Responsable RH</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <MudContainer MaxWidth="MaxWidth.False" Class="dashboard-shell">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode = true;
+
+    private readonly MudTheme _theme = new()
+    {
+        Palette = new PaletteLight
+        {
+            Primary = "#4F6DF5",
+            Secondary = "#7C3AED",
+            Background = "#F4F7FB",
+            Surface = "#FFFFFF",
+            AppbarBackground = "#F4F7FB",
+            AppbarText = "#122033",
+            DrawerBackground = "#EEF3FB",
+            DrawerText = "#21334E",
+            DrawerIcon = "#4F6DF5",
+            TextPrimary = "#122033",
+            TextSecondary = "#5F708B",
+            Info = "#0EA5E9",
+            Warning = "#F59E0B",
+            Success = "#16A34A",
+            Error = "#E11D48"
+        },
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#5B7CFF",
+            Secondary = "#8B5CF6",
+            Background = "#070D18",
+            Surface = "#0F1728",
+            AppbarBackground = "#070D18",
+            DrawerBackground = "#08111F",
+            DrawerText = "#E5EEFF",
+            DrawerIcon = "#B9C8F2",
+            TextPrimary = "#EAF1FF",
+            TextSecondary = "#91A2C5",
+            Info = "#38BDF8",
+            Warning = "#F59E0B",
+            Success = "#22C55E",
+            Error = "#F43F5E"
+        }
+    };
+
+    private void ToggleDrawer()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+    private void ToggleTheme()
+    {
+        _isDarkMode = !_isDarkMode;
+    }
+}

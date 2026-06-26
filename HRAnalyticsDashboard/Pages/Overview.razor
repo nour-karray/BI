@@ -1,0 +1,386 @@
+@page "/"
+@page "/overview"
+@inject DashboardService DashboardService
+@using ApexCharts
+@using MudColor = MudBlazor.Color
+@using MudSize = MudBlazor.Size
+
+<PageTitle>Vue d'ensemble</PageTitle>
+
+<div class="dashboard-page overview-page">
+    <section class="executive-header">
+        <div>
+            <MudText Typo="Typo.h4" Class="executive-header__title">Vue d'ensemble executive</MudText>
+            <MudText Typo="Typo.body1" Class="executive-header__subtitle">
+                Centre de pilotage RH pour les effectifs, la masse salariale, l'absenteisme et la sante du recrutement.
+            </MudText>
+        </div>
+
+        <div class="executive-header__controls">
+            <div class="executive-chip">
+                <MudIcon Icon="@Icons.Material.Filled.DateRange" Size="MudSize.Small" />
+                <span>Mai 2026</span>
+            </div>
+            <div class="executive-chip">
+                <MudIcon Icon="@Icons.Material.Filled.FilterAlt" Size="MudSize.Small" />
+                <span>@_activeFilterLabel</span>
+            </div>
+        </div>
+    </section>
+
+    @if (_loading)
+    {
+        <div class="dashboard-empty">
+            <MudProgressCircular Color="MudColor.Primary" Indeterminate="true" Size="MudSize.Large" />
+        </div>
+    }
+    else if (!string.IsNullOrWhiteSpace(_error))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled">
+            @_error
+        </MudAlert>
+    }
+    else
+    {
+        <FilterPanel Model="_filters"
+                     Departments="_filterDepartments"
+                     Positions="_filterPositions"
+                     Managers="_filterManagers"
+                     RecruitmentSources="_filterRecruitmentSources"
+                     PerformanceScores="_filterPerformanceScores"
+                     FiltersChanged="HandleFiltersChanged" />
+
+        <MudGrid Class="dashboard-grid dashboard-grid--kpi">
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Effectif"
+                         Value="@_kpis.TotalEmployees.ToString("N0")"
+                         Subtitle="Employes actifs"
+                         Icon="@Icons.Material.Filled.Groups"
+                         Color="MudColor.Primary"
+                         TrendValue="@_headcountTrend"
+                         TrendLabel="vision effectif" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Masse salariale"
+                         Value="@_kpis.TotalSalary.ToString("N0")"
+                         Subtitle="Volume de remuneration"
+                         Icon="@Icons.Material.Filled.Payments"
+                         Color="MudColor.Success"
+                         TrendValue="@_salaryTrend"
+                         TrendLabel="vision salaire" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Absences"
+                         Value="@_kpis.TotalAbsences.ToString("N0")"
+                         Subtitle="Charge d'absenteisme"
+                         Icon="@Icons.Material.Filled.EventBusy"
+                         Color="MudColor.Warning"
+                         TrendValue="@_absenceTrend"
+                         TrendLabel="tendance a suivre"
+                         PositiveTrend="false" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Engagement"
+                         Value="@_kpis.AverageEngagement.ToString("N2")"
+                         Subtitle="Score moyen"
+                         Icon="@Icons.Material.Filled.Favorite"
+                         Color="MudColor.Secondary"
+                         TrendValue="@_engagementTrend"
+                         TrendLabel="pulse collaborateur" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Class="dashboard-grid">
+            <MudItem xs="12" xl="8">
+                <ChartCard Title="Effectif par departement"
+                           Subtitle="Repartition des employes par departement"
+                           Eyebrow="Effectif">
+                    <ApexChart TItem="DepartmentMetric" Height="320">
+                        <ApexPointSeries TItem="DepartmentMetric"
+                                         Items="_employeesByDepartment"
+                                         Name="Employes"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="item => item.Department"
+                                         YValue="item => item.EmployeeCount" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" xl="4">
+                <ChartCard Title="Mix de recrutement"
+                           Subtitle="Part des employes par source de recrutement"
+                           Eyebrow="Donut">
+                    <MudChart ChartType="MudBlazor.ChartType.Donut"
+                              InputData="@_recruitmentDonutValues"
+                              InputLabels="@_recruitmentDonutLabels"
+                              Width="100%"
+                              Height="300px" />
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="7">
+                <ChartCard Title="Salaire par departement"
+                           Subtitle="Concentration de la masse salariale"
+                           Eyebrow="Remuneration">
+                    <ApexChart TItem="DepartmentMetric" Height="300">
+                        <ApexPointSeries TItem="DepartmentMetric"
+                                         Items="_salaryByDepartment"
+                                         Name="Salaire"
+                                         SeriesType="SeriesType.Area"
+                                         XValue="item => item.Department"
+                                         YValue="item => item.TotalSalary" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="5">
+                <ChartCard Title="Postes les plus absents"
+                           Subtitle="Roles avec le plus grand volume d'absences"
+                           Eyebrow="Absenteisme">
+                    <ApexChart TItem="PositionMetric" Height="300">
+                        <ApexPointSeries TItem="PositionMetric"
+                                         Items="_topAbsencePositions"
+                                         Name="Absences"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="item => item.Position"
+                                         YValue="item => item.TotalAbsences" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <ChartCard Title="Alertes intelligentes"
+                           Subtitle="Messages cles generes a partir du perimetre filtre"
+                           Eyebrow="Insights">
+                    <div class="insight-stack insight-stack--grid">
+                        @foreach (var insight in _insights.Take(3))
+                        {
+                            <InsightCard Item="insight" />
+                        }
+                    </div>
+                </ChartCard>
+            </MudItem>
+        </MudGrid>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private string? _error;
+    private FilterModel _filters = new();
+    private KpiSummary _kpis = new();
+    private List<DetailedAnalysisRow> _allRows = new();
+    private List<DetailedAnalysisRow> _filteredRows = new();
+    private List<DepartmentMetric> _employeesByDepartment = new();
+    private List<DepartmentMetric> _salaryByDepartment = new();
+    private List<RecruitmentMetric> _recruitmentMetrics = new();
+    private List<PositionMetric> _topAbsencePositions = new();
+    private List<InsightItem> _insights = new();
+    private string[] _recruitmentDonutLabels = Array.Empty<string>();
+    private double[] _recruitmentDonutValues = Array.Empty<double>();
+    private List<string> _filterDepartments = new();
+    private List<string> _filterPositions = new();
+    private List<string> _filterManagers = new();
+    private List<string> _filterRecruitmentSources = new();
+    private List<string> _filterPerformanceScores = new();
+    private string _activeFilterLabel = "Aucun filtre";
+    private string _headcountTrend = "+0.0%";
+    private string _salaryTrend = "+0.0%";
+    private string _absenceTrend = "0.0%";
+    private string _engagementTrend = "+0.0 pt";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _allRows = await DashboardService.GetDetailedAnalysisRowsAsync();
+            BuildFilterOptions();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Erreur de chargement du tableau de bord : {ex.Message}";
+        }
+
+        _loading = false;
+    }
+
+    private Task HandleFiltersChanged(FilterModel model)
+    {
+        _filters = model;
+        ApplyFilters();
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void BuildFilterOptions()
+    {
+        _filterDepartments = _allRows.Select(row => row.Department).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().OrderBy(value => value).ToList();
+        _filterPositions = _allRows.Select(row => row.Position).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().OrderBy(value => value).ToList();
+        _filterManagers = _allRows.Select(row => row.ManagerName).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().OrderBy(value => value).ToList();
+        _filterRecruitmentSources = _allRows.Select(row => row.RecruitmentSource).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().OrderBy(value => value).ToList();
+        _filterPerformanceScores = _allRows.Select(row => row.PerformanceScore).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct().OrderBy(value => value).ToList();
+    }
+
+    private void ApplyFilters()
+    {
+        IEnumerable<DetailedAnalysisRow> query = _allRows;
+
+        if (!string.IsNullOrWhiteSpace(_filters.Department))
+        {
+            query = query.Where(row => row.Department == _filters.Department);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_filters.Position))
+        {
+            query = query.Where(row => row.Position == _filters.Position);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_filters.Manager))
+        {
+            query = query.Where(row => row.ManagerName == _filters.Manager);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_filters.RecruitmentSource))
+        {
+            query = query.Where(row => row.RecruitmentSource == _filters.RecruitmentSource);
+        }
+
+        if (!string.IsNullOrWhiteSpace(_filters.PerformanceScore))
+        {
+            query = query.Where(row => row.PerformanceScore == _filters.PerformanceScore);
+        }
+
+        _filteredRows = query.ToList();
+        BuildDerivedMetrics();
+        BuildInsights();
+        BuildActiveFilterLabel();
+    }
+
+    private void BuildDerivedMetrics()
+    {
+        var distinctEmployees = _filteredRows
+            .GroupBy(row => row.EmpId)
+            .Select(group => group.First())
+            .ToList();
+
+        _kpis = new KpiSummary
+        {
+            TotalEmployees = distinctEmployees.Count,
+            TotalSalary = distinctEmployees.Sum(row => row.Salary),
+            AverageSalary = distinctEmployees.Count == 0 ? 0 : distinctEmployees.Average(row => row.Salary),
+            TotalAbsences = distinctEmployees.Sum(row => row.Absences),
+            AverageSatisfaction = distinctEmployees.Count == 0 ? 0 : distinctEmployees.Average(row => row.EmpSatisfaction),
+            AverageEngagement = distinctEmployees.Count == 0 ? 0 : distinctEmployees.Average(row => row.EngagementSurvey),
+            TerminationCount = distinctEmployees.Sum(row => row.TerminationFlag),
+            AverageTenure = distinctEmployees.Count == 0 ? 0 : distinctEmployees.Average(row => row.Tenure)
+        };
+
+        _employeesByDepartment = distinctEmployees
+            .GroupBy(row => row.Department)
+            .Select(group => new DepartmentMetric
+            {
+                Department = group.Key,
+                EmployeeCount = group.Count()
+            })
+            .OrderByDescending(item => item.EmployeeCount)
+            .ToList();
+
+        _salaryByDepartment = distinctEmployees
+            .GroupBy(row => row.Department)
+            .Select(group => new DepartmentMetric
+            {
+                Department = group.Key,
+                TotalSalary = group.Sum(row => row.Salary)
+            })
+            .OrderByDescending(item => item.TotalSalary)
+            .ToList();
+
+        _recruitmentMetrics = distinctEmployees
+            .GroupBy(row => string.IsNullOrWhiteSpace(row.RecruitmentSource) ? "Inconnue" : row.RecruitmentSource)
+            .Select(group => new RecruitmentMetric
+            {
+                RecruitmentSource = group.Key,
+                EmployeeCount = group.Count(),
+                AverageEngagement = group.Average(row => row.EngagementSurvey),
+                AverageSatisfaction = group.Average(row => row.EmpSatisfaction)
+            })
+            .OrderByDescending(item => item.EmployeeCount)
+            .ToList();
+
+        _topAbsencePositions = distinctEmployees
+            .GroupBy(row => row.Position)
+            .Select(group => new PositionMetric
+            {
+                Position = group.Key,
+                TotalAbsences = group.Sum(row => row.Absences),
+                AverageDaysLate = 0,
+                EmployeeCount = group.Count()
+            })
+            .OrderByDescending(item => item.TotalAbsences)
+            .Take(5)
+            .ToList();
+
+        _recruitmentDonutLabels = _recruitmentMetrics.Select(item => item.RecruitmentSource).ToArray();
+        _recruitmentDonutValues = _recruitmentMetrics.Select(item => (double)item.EmployeeCount).ToArray();
+
+        _headcountTrend = distinctEmployees.Count == 0 ? "0.0%" : $"+{Math.Min(distinctEmployees.Count, 99) / 10.0:N1}%";
+        _salaryTrend = _kpis.TotalSalary == 0 ? "+0.0%" : $"+{Math.Min((double)_kpis.TotalSalary / 1000000d, 99):N1}%";
+        _absenceTrend = _kpis.TotalAbsences == 0 ? "0.0%" : $"+{Math.Min(_kpis.TotalAbsences, 99):N1}%";
+        _engagementTrend = _kpis.AverageEngagement == 0 ? "+0.0 pt" : $"+{_kpis.AverageEngagement / 10m:N1} pt";
+    }
+
+    private void BuildInsights()
+    {
+        _insights = new List<InsightItem>();
+
+        if (_employeesByDepartment.Count > 0)
+        {
+            var topHeadcount = _employeesByDepartment.First();
+            _insights.Add(new InsightItem
+            {
+                Title = "Departement le plus representatif",
+                Description = $"{topHeadcount.Department} concentre le plus grand nombre de collaborateurs avec {topHeadcount.EmployeeCount:N0} personnes.",
+                Category = "Vue d'ensemble",
+                Severity = "info"
+            });
+        }
+
+        if (_salaryByDepartment.Count > 0)
+        {
+            var topSalary = _salaryByDepartment.First();
+            _insights.Add(new InsightItem
+            {
+                Title = "Concentration salariale",
+                Description = $"{topSalary.Department} porte la masse salariale la plus elevee avec {topSalary.TotalSalary:N0}.",
+                Category = "Remuneration",
+                Severity = "success"
+            });
+        }
+
+        if (_topAbsencePositions.Count > 0)
+        {
+            var topPosition = _topAbsencePositions.First();
+            _insights.Add(new InsightItem
+            {
+                Title = "Point chaud d'absenteisme",
+                Description = $"{topPosition.Position} est le poste affichant le plus grand volume d'absences ({topPosition.TotalAbsences:N0}).",
+                Category = "Absenteisme",
+                Severity = "warning"
+            });
+        }
+    }
+
+    private void BuildActiveFilterLabel()
+    {
+        var activeCount = 0;
+
+        if (!string.IsNullOrWhiteSpace(_filters.Department)) activeCount++;
+        if (!string.IsNullOrWhiteSpace(_filters.Position)) activeCount++;
+        if (!string.IsNullOrWhiteSpace(_filters.Manager)) activeCount++;
+        if (!string.IsNullOrWhiteSpace(_filters.RecruitmentSource)) activeCount++;
+        if (!string.IsNullOrWhiteSpace(_filters.PerformanceScore)) activeCount++;
+
+        _activeFilterLabel = activeCount == 0 ? "Aucun filtre" : $"{activeCount} filtre(s) actif(s)";
+    }
+}

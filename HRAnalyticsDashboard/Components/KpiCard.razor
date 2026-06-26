@@ -1,0 +1,64 @@
+<MudPaper Class="kpi-card">
+    <div class="kpi-card__top">
+        <div>
+            <MudText Typo="Typo.caption" Class="kpi-card__label">@Title</MudText>
+            <MudText Typo="Typo.h4" Class="kpi-card__value">@Value</MudText>
+        </div>
+
+        <MudAvatar Variant="Variant.Filled" Size="Size.Medium" Class="kpi-card__avatar" Style="@($"background:{GetAccentHex()}22;color:{GetAccentHex()};")">
+            <MudIcon Icon="@Icon" />
+        </MudAvatar>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Subtitle))
+    {
+        <MudText Typo="Typo.body2" Class="kpi-card__subtitle">@Subtitle</MudText>
+    }
+
+    <div class="kpi-card__footer">
+        @if (!string.IsNullOrWhiteSpace(TrendValue))
+        {
+            <span class="@($"kpi-card__trend {(PositiveTrend ? "is-positive" : "is-negative")}")">@TrendValue</span>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(TrendLabel))
+        {
+            <span class="kpi-card__trend-label">@TrendLabel</span>
+        }
+    </div>
+
+    <div class="kpi-card__spark" style="@($"--spark-accent:{GetAccentHex()};")">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Value { get; set; } = string.Empty;
+    [Parameter] public string Subtitle { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Analytics;
+    [Parameter] public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Primary;
+    [Parameter] public string TrendValue { get; set; } = string.Empty;
+    [Parameter] public string TrendLabel { get; set; } = string.Empty;
+    [Parameter] public bool PositiveTrend { get; set; } = true;
+
+    private string GetAccentHex() => Color switch
+    {
+        MudBlazor.Color.Secondary => "#8B5CF6",
+        MudBlazor.Color.Success => "#22C55E",
+        MudBlazor.Color.Warning => "#F59E0B",
+        MudBlazor.Color.Info => "#38BDF8",
+        MudBlazor.Color.Error => "#F43F5E",
+        MudBlazor.Color.Dark => "#94A3B8",
+        _ => "#5B7CFF"
+    };
+}

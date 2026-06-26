@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_template_website_lead_confirmation" model="mail.template">
+        <field name="name">Website Lead Confirmation</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="subject">Confirmation de votre demande Tech-Competences</field>
+        <field name="email_from">{{ object.company_id.email_formatted or user.email_formatted }}</field>
+        <field name="email_to">{{ object.website_form_email or object.email_from }}</field>
+        <field name="lang">fr_FR</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; font-size: 14px; color: #1f2937;">
+                <p>Bonjour <t t-out="object.contact_name or 'Madame, Monsieur'"/>,</p>
+                <p>
+                    Nous confirmons la bonne reception de votre demande sur le site
+                    <strong>Tech-Competences</strong>.
+                </p>
+                <p>
+                    Notre equipe reviendra vers vous dans les meilleurs delais pour
+                    etudier votre besoin en CRM, ERP ou transformation digitale.
+                </p>
+                <p>
+                    Reference de la demande :
+                    <strong><t t-out="object.name"/></strong>
+                </p>
+                <p>Cordialement,<br/>L'equipe Tech-Competences</p>
+            </div>
+        </field>
+    </record>
+</odoo>

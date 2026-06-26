@@ -1,0 +1,100 @@
+@page "/recruitment"
+@inject DashboardService DashboardService
+@inject InsightService InsightService
+@using ApexCharts
+@using MudColor = MudBlazor.Color
+@using MudSize = MudBlazor.Size
+
+<PageTitle>Analyse du recrutement</PageTitle>
+
+<div class="dashboard-page">
+    <section class="dashboard-hero">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-weight-bold">Analyse du recrutement</MudText>
+            <MudText Typo="Typo.body1" Class="mt-2">
+                Lecture des sources de recrutement, de leur engagement moyen et de leur impact sur la satisfaction.
+            </MudText>
+        </div>
+
+        <MudChip Color="MudColor.Secondary" Variant="Variant.Filled" Size="MudSize.Large">
+            Recrutement
+        </MudChip>
+    </section>
+
+    @if (_loading)
+    {
+        <div class="dashboard-empty">
+            <MudProgressCircular Color="MudColor.Primary" Indeterminate="true" Size="MudSize.Large" />
+        </div>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" lg="5">
+                <ChartCard Title="Mix de recrutement" Subtitle="Part des employes par source">
+                    <MudChart ChartType="MudBlazor.ChartType.Donut"
+                              InputData="@_recruitmentDonutValues"
+                              InputLabels="@_recruitmentDonutLabels"
+                              Width="100%"
+                              Height="300px" />
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="7">
+                <ChartCard Title="Engagement par source" Subtitle="Comparaison des niveaux d'engagement">
+                    <ApexChart TItem="RecruitmentMetric" Height="320">
+                        <ApexPointSeries TItem="RecruitmentMetric"
+                                         Items="_recruitments"
+                                         Name="Engagement"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="e => e.RecruitmentSource"
+                                         YValue="e => e.AverageEngagement" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="7">
+                <ChartCard Title="Satisfaction par source" Subtitle="Courbe de satisfaction moyenne">
+                    <ApexChart TItem="RecruitmentMetric" Height="320">
+                        <ApexPointSeries TItem="RecruitmentMetric"
+                                         Items="_recruitments"
+                                         Name="Satisfaction"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="e => e.RecruitmentSource"
+                                         YValue="e => e.AverageSatisfaction" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="5">
+                <ChartCard Title="Insights recrutement" Subtitle="Lecture rapide des signaux de sourcing">
+                    <div class="insight-stack">
+                        @foreach (var insight in _insights.Where(x => x.Category == "Recrutement").Take(4))
+                        {
+                            <InsightCard Item="insight" />
+                        }
+                    </div>
+                </ChartCard>
+            </MudItem>
+        </MudGrid>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private List<RecruitmentMetric> _recruitments = new();
+    private List<InsightItem> _insights = new();
+    private string[] _recruitmentDonutLabels = Array.Empty<string>();
+    private double[] _recruitmentDonutValues = Array.Empty<double>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _recruitments = await DashboardService.GetEngagementByRecruitmentAsync();
+        _insights = await InsightService.GenerateInsightsAsync();
+
+        _recruitmentDonutLabels = _recruitments.Select(x => x.RecruitmentSource).ToArray();
+        _recruitmentDonutValues = _recruitments.Select(x => (double)x.EmployeeCount).ToArray();
+
+        _loading = false;
+    }
+}

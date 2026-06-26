@@ -1,0 +1,36 @@
+<MudPaper Class="insight-card">
+    <div class="insight-card__header">
+        <div class="insight-card__icon" style="@($"background:{GetAccentHex()}20;color:{GetAccentHex()};")">
+            <MudIcon Icon="@GetIcon()" Size="Size.Small" />
+        </div>
+
+        <div class="insight-card__meta">
+            <MudText Typo="Typo.subtitle2" Class="insight-card__title">@Item.Title</MudText>
+            <MudText Typo="Typo.caption" Class="insight-card__category">@Item.Category</MudText>
+        </div>
+
+        <span class="@($"insight-card__badge severity-{Item.Severity?.ToLowerInvariant()}")">@Item.Severity</span>
+    </div>
+
+    <MudText Typo="Typo.body2" Class="insight-card__description">@Item.Description</MudText>
+</MudPaper>
+
+@code {
+    [Parameter] public InsightItem Item { get; set; } = new();
+
+    private string GetAccentHex() => Item.Severity?.ToLowerInvariant() switch
+    {
+        "success" => "#22C55E",
+        "warning" => "#F59E0B",
+        "error" => "#F43F5E",
+        _ => "#38BDF8"
+    };
+
+    private string GetIcon() => Item.Severity?.ToLowerInvariant() switch
+    {
+        "success" => Icons.Material.Filled.NorthEast,
+        "warning" => Icons.Material.Filled.PriorityHigh,
+        "error" => Icons.Material.Filled.ReportGmailerrorred,
+        _ => Icons.Material.Filled.TipsAndUpdates
+    };
+}

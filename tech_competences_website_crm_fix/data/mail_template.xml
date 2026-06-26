@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_website_lead_confirmation" model="mail.template">
+            <field name="name">Confirmation demande site</field>
+            <field name="model_id" ref="crm.model_crm_lead"/>
+            <field name="subject">Nous avons bien recu votre demande</field>
+            <field name="email_from">{{ user.email_formatted or user.email or 'odoobot@example.com' }}</field>
+            <field name="email_to">{{ object.email_from or '' }}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="body_html" type="html">
+                <div>
+                    <p>Bonjour <t t-out="object.contact_name or 'Madame, Monsieur'"/>,</p>
+                    <p>Nous avons bien recu votre demande et notre equipe vous recontactera rapidement.</p>
+                    <p>Cordialement,<br/>Tech-Competences</p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

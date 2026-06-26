@@ -1,0 +1,103 @@
+@page "/details"
+@inject DashboardService DashboardService
+@using MudColor = MudBlazor.Color
+@using MudSize = MudBlazor.Size
+
+<PageTitle>Analyse detaillee</PageTitle>
+
+<div class="dashboard-page">
+    <section class="dashboard-hero">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-weight-bold">Analyse detaillee</MudText>
+            <MudText Typo="Typo.body1" Class="mt-2">
+                Vue employee-level pour croiser salaire, absences, engagement, manager et recrutement.
+            </MudText>
+        </div>
+
+        <MudChip Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Large">
+            Detail
+        </MudChip>
+    </section>
+
+    @if (_loading)
+    {
+        <div class="dashboard-empty">
+            <MudProgressCircular Color="MudColor.Primary" Indeterminate="true" Size="MudSize.Large" />
+        </div>
+    }
+    else
+    {
+        <FilterPanel Model="_filters"
+                     Departments="_departments"
+                     Positions="_positions"
+                     Managers="_managers"
+                     RecruitmentSources="_recruitmentSources"
+                     FiltersChanged="OnFiltersChanged" />
+
+        <ChartCard Title="Tableau detaille" Subtitle="@($"{FilteredRows.Count()} ligne(s) affichee(s)")">
+            <MudTable Items="FilteredRows" Dense="true" Hover="true" Bordered="false" Striped="true" Class="metric-table">
+                <HeaderContent>
+                    <MudTh>Employe</MudTh>
+                    <MudTh>Departement</MudTh>
+                    <MudTh>Poste</MudTh>
+                    <MudTh>Manager</MudTh>
+                    <MudTh>Recrutement</MudTh>
+                    <MudTh>Performance</MudTh>
+                    <MudTh>Etat</MudTh>
+                    <MudTh>Salaire</MudTh>
+                    <MudTh>Absences</MudTh>
+                    <MudTh>Satisfaction</MudTh>
+                    <MudTh>Engagement</MudTh>
+                    <MudTh>Tenure</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Employe">@context.EmployeeName</MudTd>
+                    <MudTd DataLabel="Departement">@context.Department</MudTd>
+                    <MudTd DataLabel="Poste">@context.Position</MudTd>
+                    <MudTd DataLabel="Manager">@context.ManagerName</MudTd>
+                    <MudTd DataLabel="Recrutement">@context.RecruitmentSource</MudTd>
+                    <MudTd DataLabel="Performance">@context.PerformanceScore</MudTd>
+                    <MudTd DataLabel="Etat">@context.State</MudTd>
+                    <MudTd DataLabel="Salaire">@context.Salary.ToString("N0")</MudTd>
+                    <MudTd DataLabel="Absences">@context.Absences</MudTd>
+                    <MudTd DataLabel="Satisfaction">@context.EmpSatisfaction.ToString("N2")</MudTd>
+                    <MudTd DataLabel="Engagement">@context.EngagementSurvey.ToString("N2")</MudTd>
+                    <MudTd DataLabel="Tenure">@context.Tenure.ToString("N2")</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </ChartCard>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private FilterModel _filters = new();
+    private List<DetailedAnalysisRow> _rows = new();
+    private List<string> _departments = new();
+    private List<string> _positions = new();
+    private List<string> _managers = new();
+    private List<string> _recruitmentSources = new();
+
+    private IEnumerable<DetailedAnalysisRow> FilteredRows =>
+        _rows.Where(row =>
+            (string.IsNullOrWhiteSpace(_filters.Department) || row.Department == _filters.Department) &&
+            (string.IsNullOrWhiteSpace(_filters.Position) || row.Position == _filters.Position) &&
+            (string.IsNullOrWhiteSpace(_filters.Manager) || row.ManagerName == _filters.Manager) &&
+            (string.IsNullOrWhiteSpace(_filters.RecruitmentSource) || row.RecruitmentSource == _filters.RecruitmentSource));
+
+    protected override async Task OnInitializedAsync()
+    {
+        _rows = await DashboardService.GetDetailedAnalysisRowsAsync();
+        _departments = _rows.Select(x => x.Department).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList();
+        _positions = _rows.Select(x => x.Position).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList();
+        _managers = _rows.Select(x => x.ManagerName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList();
+        _recruitmentSources = _rows.Select(x => x.RecruitmentSource).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x).ToList();
+        _loading = false;
+    }
+
+    private Task OnFiltersChanged(FilterModel filters)
+    {
+        _filters = filters;
+        return Task.CompletedTask;
+    }
+}

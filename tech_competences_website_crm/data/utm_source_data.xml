@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="utm_source_website_contact" model="utm.source">
+        <field name="name">Website Contact</field>
+    </record>
+
+    <record id="utm_source_website_demo" model="utm.source">
+        <field name="name">Website Demo</field>
+    </record>
+</odoo>

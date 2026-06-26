@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="contact_page" name="Tech Competences Contact" page="True">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="s_title parallax s_parallax_is_fixed bg-black-50 pt24 pb24" data-snippet="s_title">
+                    <span class="s_parallax_bg oe_img_bg" style="background-image: url('/web/image/website.s_parallax_default_image'); background-position: 50% 0;"/>
+                    <div class="o_we_bg_filter bg-black-50"/>
+                    <div class="container">
+                        <h1>Contactez-nous</h1>
+                    </div>
+                </section>
+                <section class="s_form_aside pt64 pb64 o_colored_level" data-snippet="s_form_aside" data-name="Formulaire lateral">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12 col-lg-6 o_colored_level order-lg-0" style="order: 1;">
+                                <h1>Contactez-nous</h1>
+                                <p class="lead">Parlez-nous de votre besoin en CRM, ERP ou transformation digitale.</p>
+                                <section class="s_website_form pt16 pb16" data-snippet="s_website_form" data-name="Form">
+                                    <div class="container-fluid">
+                                        <form action="/contactus/submit" method="post" class="o_mark_required" data-mark="*" autocomplete="off">
+                                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                            <div class="s_website_form_rows row s_col_no_bgcolor">
+                                                <div class="s_website_form_field mb-3 col-12 s_website_form_required" data-type="char">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_name">
+                                                            <span class="s_website_form_label_content">Votre nom</span>
+                                                            <span class="s_website_form_mark"> *</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <input id="tc_contact_name" class="form-control s_website_form_input" type="text" name="contact_name" required="1" autocomplete="off" t-att-value="form_values.get('contact_name', '')"/>
+                                                            <div t-if="errors.get('contact_name')" class="text-danger small mt-1">
+                                                                <t t-out="errors['contact_name']"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="s_website_form_field mb-3 col-12" data-type="tel">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_phone">
+                                                            <span class="s_website_form_label_content">Numero de telephone</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <input id="tc_contact_phone" class="form-control s_website_form_input" type="tel" name="phone" autocomplete="off" t-att-value="form_values.get('phone', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="s_website_form_field mb-3 col-12 s_website_form_required" data-type="email">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_email">
+                                                            <span class="s_website_form_label_content">Votre e-mail</span>
+                                                            <span class="s_website_form_mark"> *</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <input id="tc_contact_email" class="form-control s_website_form_input" type="email" name="email_from" required="1" autocomplete="off" t-att-value="form_values.get('email', '') or form_values.get('email_from', '')"/>
+                                                            <div t-if="errors.get('email')" class="text-danger small mt-1">
+                                                                <t t-out="errors['email']"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="s_website_form_field mb-3 col-12" data-type="char">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_company">
+                                                            <span class="s_website_form_label_content">Votre societe</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <input id="tc_contact_company" class="form-control s_website_form_input" type="text" name="partner_name" t-att-value="form_values.get('company', '') or form_values.get('partner_name', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="s_website_form_field mb-3 col-12 s_website_form_required" data-type="char">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_subject">
+                                                            <span class="s_website_form_label_content">Sujet</span>
+                                                            <span class="s_website_form_mark"> *</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <input id="tc_contact_subject" class="form-control s_website_form_input" type="text" name="name" required="1" t-att-value="form_values.get('subject', '') or form_values.get('name', '')"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="s_website_form_field mb-3 col-12 s_website_form_required" data-type="text">
+                                                    <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                        <label class="col-form-label col-sm-auto s_website_form_label" style="width: 200px" for="tc_contact_message">
+                                                            <span class="s_website_form_label_content">Votre question</span>
+                                                            <span class="s_website_form_mark"> *</span>
+                                                        </label>
+                                                        <div class="col-sm">
+                                                            <textarea id="tc_contact_message" class="form-control s_website_form_input" name="description" required="1" rows="4"><t t-out="form_values.get('message', '') or form_values.get('description', '')"/></textarea>
+                                                            <div t-if="errors.get('message')" class="text-danger small mt-1">
+                                                                <t t-out="errors['message']"/>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-0 py-2 col-12 s_website_form_submit text-end s_website_form_no_submit_label">
+                                                    <div style="width: 200px;" class="s_website_form_label"/>
+                                                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </section>
+                            </div>
+                            <div class="col-12 col-lg-5 offset-lg-1 pt0 pb32 o_colored_level order-lg-0" style="order: 0;">
+                                <img src="/web/image/website.s_form_aside_default_image" class="img img-fluid rounded" alt="" loading="lazy"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="demo_page" name="Tech Competences Demo" page="True">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="container py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <h1 class="mb-3">Demande de demo</h1>
+                            <p class="lead text-muted mb-4">
+                                Planifiez une demonstration adaptee a votre contexte metier.
+                            </p>
+
+                            <t t-if="success">
+                                <div class="alert alert-success" role="alert">
+                                    Votre demande de demo a bien ete envoyee et enregistree dans le CRM.
+                                </div>
+                            </t>
+
+                            <form action="/demande-de-demo/submit" method="post" class="row g-3" autocomplete="off">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_name">Nom complet</label>
+                                    <input
+                                        id="demo_name"
+                                        type="text"
+                                        name="contact_name"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        t-att-value="form_values.get('contact_name') or form_values.get('name', '')"
+                                    />
+                                    <div t-if="errors.get('contact_name')" class="text-danger small mt-1">
+                                        <t t-out="errors['contact_name']"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_email">Adresse e-mail</label>
+                                    <input
+                                        id="demo_email"
+                                        type="email"
+                                        name="email_from"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        t-att-value="form_values.get('email', '') or form_values.get('email_from', '')"
+                                    />
+                                    <div t-if="errors.get('email')" class="text-danger small mt-1">
+                                        <t t-out="errors['email']"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_phone">Telephone</label>
+                                    <input
+                                        id="demo_phone"
+                                        type="text"
+                                        name="phone"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        t-att-value="form_values.get('phone', '')"
+                                    />
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_company">Entreprise</label>
+                                    <input
+                                        id="demo_company"
+                                        type="text"
+                                        name="partner_name"
+                                        class="form-control"
+                                        t-att-value="form_values.get('company', '') or form_values.get('partner_name', '')"
+                                    />
+                                    <div t-if="errors.get('company')" class="text-danger small mt-1">
+                                        <t t-out="errors['company']"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_service">Solution souhaitee</label>
+                                    <select id="demo_service" name="service_interest" class="form-select">
+                                        <option value="">Choisir une solution</option>
+                                        <option value="CRM" t-att-selected="'selected' if form_values.get('service_interest') == 'CRM' else None">CRM</option>
+                                        <option value="ERP" t-att-selected="'selected' if form_values.get('service_interest') == 'ERP' else None">ERP</option>
+                                        <option value="Transformation digitale" t-att-selected="'selected' if form_values.get('service_interest') == 'Transformation digitale' else None">Transformation digitale</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="demo_company_size">Taille de l'entreprise</label>
+                                    <input
+                                        id="demo_company_size"
+                                        type="text"
+                                        name="company_size"
+                                        class="form-control"
+                                        t-att-value="form_values.get('company_size', '')"
+                                    />
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label" for="demo_goal">Objectif de la demo</label>
+                                    <input
+                                        id="demo_goal"
+                                        type="text"
+                                        name="name"
+                                        class="form-control"
+                                        t-att-value="form_values.get('demo_goal', '') or form_values.get('name', '')"
+                                    />
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label" for="demo_message">Contexte et besoin</label>
+                                    <textarea
+                                        id="demo_message"
+                                        name="description"
+                                        class="form-control"
+                                        rows="6"
+                                    ><t t-out="form_values.get('message', '') or form_values.get('description', '')"/></textarea>
+                                    <div t-if="errors.get('message')" class="text-danger small mt-1">
+                                        <t t-out="errors['message']"/>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        Demander une demo
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,66 @@
+<div class="nav-shell">
+    <div class="nav-brand">
+        <div class="nav-brand__logo">
+            <MudIcon Icon="@Icons.Material.Filled.AutoGraph" />
+        </div>
+
+        <div class="nav-brand__copy">
+            <span class="nav-brand__title">ORION HR</span>
+            <span class="nav-brand__subtitle">Intelligence RH</span>
+        </div>
+    </div>
+
+    <div class="nav-section-label">Navigation</div>
+
+    <MudNavMenu Rounded="true" Margin="Margin.Dense" Color="Color.Default" Class="dashboard-nav">
+        <MudNavLink Href="/overview" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.DashboardCustomize">
+            Vue d'ensemble
+        </MudNavLink>
+        <MudNavLink Href="/performance" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Insights">
+            Performance
+        </MudNavLink>
+        <MudNavLink Href="/compensation" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.AccountBalanceWallet">
+            Remuneration
+        </MudNavLink>
+        <MudNavLink Href="/recruitment" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups2">
+            Recrutement
+        </MudNavLink>
+        <MudNavLink Href="/details" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.TableRows">
+            Analyse detaillee
+        </MudNavLink>
+        <MudNavLink Href="/insights" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Bolt">
+            Insights intelligents
+        </MudNavLink>
+    </MudNavMenu>
+
+    <div class="nav-footer-card">
+        <div class="nav-footer-card__header">
+            <span class="nav-footer-card__title">Pulse RH</span>
+            <span class="nav-footer-card__badge">Live</span>
+        </div>
+
+        <div class="nav-stat">
+            <span class="nav-stat__dot nav-stat__dot--blue"></span>
+            <div>
+                <div class="nav-stat__label">Couverture departements</div>
+                <div class="nav-stat__value">6 unites actives</div>
+            </div>
+        </div>
+
+        <div class="nav-stat">
+            <span class="nav-stat__dot nav-stat__dot--green"></span>
+            <div>
+                <div class="nav-stat__label">Suivi retention</div>
+                <div class="nav-stat__value">Turnover suivi chaque jour</div>
+            </div>
+        </div>
+
+        <div class="nav-stat">
+            <span class="nav-stat__dot nav-stat__dot--purple"></span>
+            <div>
+                <div class="nav-stat__label">Moteur d'insights</div>
+                <div class="nav-stat__value">Lectures automatiques pretes</div>
+            </div>
+        </div>
+    </div>
+</div>

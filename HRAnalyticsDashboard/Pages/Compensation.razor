@@ -1,0 +1,102 @@
+@page "/compensation"
+@inject DashboardService DashboardService
+@using ApexCharts
+@using MudColor = MudBlazor.Color
+@using MudSize = MudBlazor.Size
+
+<PageTitle>Remuneration et retention</PageTitle>
+
+<div class="dashboard-page">
+    <section class="dashboard-hero">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-weight-bold">Remuneration et retention</MudText>
+            <MudText Typo="Typo.body1" Class="mt-2">
+                Pilotage de la masse salariale, de l'anciennete moyenne et du turnover par departement.
+            </MudText>
+        </div>
+
+        <MudChip Color="MudColor.Success" Variant="Variant.Filled" Size="MudSize.Large">
+            Remuneration
+        </MudChip>
+    </section>
+
+    @if (_loading)
+    {
+        <div class="dashboard-empty">
+            <MudProgressCircular Color="MudColor.Primary" Indeterminate="true" Size="MudSize.Large" />
+        </div>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Salaire total" Value="@_kpis.TotalSalary.ToString("N0")" Subtitle="Somme globale" Icon="@Icons.Material.Filled.Payments" Color="MudColor.Success" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Salaire moyen" Value="@_kpis.AverageSalary.ToString("N0")" Subtitle="Par collaborateur" Icon="@Icons.Material.Filled.AttachMoney" Color="MudColor.Info" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Departs" Value="@_kpis.TerminationCount.ToString("N0")" Subtitle="Turnover constate" Icon="@Icons.Material.Filled.Logout" Color="MudColor.Error" />
+            </MudItem>
+            <MudItem xs="12" sm="6" lg="3">
+                <KpiCard Title="Anciennete moyenne" Value="@_kpis.AverageTenure.ToString("N2")" Subtitle="Tenure moyen" Icon="@Icons.Material.Filled.Schedule" Color="MudColor.Primary" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid>
+            <MudItem xs="12" lg="7">
+                <ChartCard Title="Salaire par departement" Subtitle="Vision en aire de la masse salariale">
+                    <ApexChart TItem="DepartmentMetric" Height="320">
+                        <ApexPointSeries TItem="DepartmentMetric"
+                                         Items="_salaryByDepartment"
+                                         Name="Salaire"
+                                         SeriesType="SeriesType.Area"
+                                         XValue="e => e.Department"
+                                         YValue="e => e.TotalSalary" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12" lg="5">
+                <ChartCard Title="Turnover par departement" Subtitle="Lecture en barres des departs">
+                    <ApexChart TItem="TurnoverMetric" Height="320">
+                        <ApexPointSeries TItem="TurnoverMetric"
+                                         Items="_turnoverByDepartment"
+                                         Name="Departs"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="e => e.Department"
+                                         YValue="e => e.TerminationCount" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+
+            <MudItem xs="12">
+                <ChartCard Title="Anciennete moyenne par departement" Subtitle="Courbe de retention">
+                    <ApexChart TItem="TurnoverMetric" Height="320">
+                        <ApexPointSeries TItem="TurnoverMetric"
+                                         Items="_turnoverByDepartment"
+                                         Name="Anciennete moyenne"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="e => e.Department"
+                                         YValue="e => e.AverageTenure" />
+                    </ApexChart>
+                </ChartCard>
+            </MudItem>
+        </MudGrid>
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private KpiSummary _kpis = new();
+    private List<DepartmentMetric> _salaryByDepartment = new();
+    private List<TurnoverMetric> _turnoverByDepartment = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _kpis = await DashboardService.GetKpiSummaryAsync();
+        _salaryByDepartment = await DashboardService.GetSalaryByDepartmentAsync();
+        _turnoverByDepartment = await DashboardService.GetTurnoverByDepartmentAsync();
+        _loading = false;
+    }
+}

@@ -1,0 +1,83 @@
+@page "/insights"
+@inject DashboardService DashboardService
+@inject InsightService InsightService
+@using MudColor = MudBlazor.Color
+@using MudSize = MudBlazor.Size
+
+<PageTitle>Insights intelligents</PageTitle>
+
+<div class="dashboard-page">
+    <section class="dashboard-hero">
+        <div>
+            <MudText Typo="Typo.h4" Class="font-weight-bold">Insights intelligents</MudText>
+            <MudText Typo="Typo.body1" Class="mt-2">
+                Synthese automatique des principaux signaux RH detectes dans le data warehouse.
+            </MudText>
+        </div>
+
+        <MudChip Color="MudColor.Warning" Variant="Variant.Filled" Size="MudSize.Large">
+            Insights
+        </MudChip>
+    </section>
+
+    @if (_loading)
+    {
+        <div class="dashboard-empty">
+            <MudProgressCircular Color="MudColor.Primary" Indeterminate="true" Size="MudSize.Large" />
+        </div>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="mini-stat">
+                    <MudText Typo="Typo.overline">Employes</MudText>
+                    <MudText Typo="Typo.h5">@_kpis.TotalEmployees.ToString("N0")</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="mini-stat">
+                    <MudText Typo="Typo.overline">Engagement moyen</MudText>
+                    <MudText Typo="Typo.h5">@_kpis.AverageEngagement.ToString("N2")</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="mini-stat">
+                    <MudText Typo="Typo.overline">Satisfaction moyenne</MudText>
+                    <MudText Typo="Typo.h5">@_kpis.AverageSatisfaction.ToString("N2")</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="6" md="3">
+                <div class="mini-stat">
+                    <MudText Typo="Typo.overline">Departs</MudText>
+                    <MudText Typo="Typo.h5">@_kpis.TerminationCount.ToString("N0")</MudText>
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        @foreach (var group in _insights.GroupBy(x => x.Category).OrderBy(x => x.Key))
+        {
+            <ChartCard Title="@group.Key" Subtitle="Insights de cette categorie">
+                <div class="insight-stack">
+                    @foreach (var insight in group)
+                    {
+                        <InsightCard Item="insight" />
+                    }
+                </div>
+            </ChartCard>
+        }
+    }
+</div>
+
+@code {
+    private bool _loading = true;
+    private KpiSummary _kpis = new();
+    private List<InsightItem> _insights = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _kpis = await DashboardService.GetKpiSummaryAsync();
+        _insights = await InsightService.GenerateInsightsAsync();
+        _loading = false;
+    }
+}

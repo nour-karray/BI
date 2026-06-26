@@ -1,0 +1,110 @@
+<MudPaper Class="filter-panel pa-4">
+    <div class="chart-card__header mb-4">
+        <div>
+            <MudText Typo="Typo.caption" Class="chart-card__eyebrow">Controles interactifs</MudText>
+            <MudText Typo="Typo.h6" Class="chart-card__title">Filtres executifs</MudText>
+            <MudText Typo="Typo.body2" Class="chart-card__subtitle">Affinez le tableau de bord par departement, poste, manager, source de recrutement et niveau de performance.</MudText>
+        </div>
+    </div>
+
+    <MudGrid>
+        <MudItem xs="12" md="6" lg="4">
+            <MudSelect T="string" Label="Departement" Value="@Model.Department" ValueChanged="OnDepartmentChanged" Dense="true" Clearable="true" Variant="Variant.Outlined">
+                @foreach (var department in Departments)
+                {
+                    <MudSelectItem Value="@department">@department</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="6" lg="4">
+            <MudSelect T="string" Label="Poste" Value="@Model.Position" ValueChanged="OnPositionChanged" Dense="true" Clearable="true" Variant="Variant.Outlined">
+                @foreach (var position in Positions)
+                {
+                    <MudSelectItem Value="@position">@position</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="6" lg="4">
+            <MudSelect T="string" Label="Manager" Value="@Model.Manager" ValueChanged="OnManagerChanged" Dense="true" Clearable="true" Variant="Variant.Outlined">
+                @foreach (var manager in Managers)
+                {
+                    <MudSelectItem Value="@manager">@manager</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="6" lg="4">
+            <MudSelect T="string" Label="Source de recrutement" Value="@Model.RecruitmentSource" ValueChanged="OnRecruitmentChanged" Dense="true" Clearable="true" Variant="Variant.Outlined">
+                @foreach (var source in RecruitmentSources)
+                {
+                    <MudSelectItem Value="@source">@source</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+
+        <MudItem xs="12" md="6" lg="4">
+            <MudSelect T="string" Label="Niveau de performance" Value="@Model.PerformanceScore" ValueChanged="OnPerformanceChanged" Dense="true" Clearable="true" Variant="Variant.Outlined">
+                @foreach (var score in PerformanceScores)
+                {
+                    <MudSelectItem Value="@score">@score</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="ResetFilters" Class="mt-4">
+        Reinitialiser les filtres
+    </MudButton>
+</MudPaper>
+
+@code {
+    [Parameter] public FilterModel Model { get; set; } = new();
+    [Parameter] public List<string> Departments { get; set; } = new();
+    [Parameter] public List<string> Positions { get; set; } = new();
+    [Parameter] public List<string> Managers { get; set; } = new();
+    [Parameter] public List<string> RecruitmentSources { get; set; } = new();
+    [Parameter] public List<string> PerformanceScores { get; set; } = new();
+    [Parameter] public EventCallback<FilterModel> FiltersChanged { get; set; }
+
+    private async Task OnDepartmentChanged(string? value)
+    {
+        Model.Department = value;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+
+    private async Task OnPositionChanged(string? value)
+    {
+        Model.Position = value;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+
+    private async Task OnManagerChanged(string? value)
+    {
+        Model.Manager = value;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+
+    private async Task OnRecruitmentChanged(string? value)
+    {
+        Model.RecruitmentSource = value;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+
+    private async Task OnPerformanceChanged(string? value)
+    {
+        Model.PerformanceScore = value;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+
+    private async Task ResetFilters()
+    {
+        Model.Department = null;
+        Model.Position = null;
+        Model.Manager = null;
+        Model.RecruitmentSource = null;
+        Model.PerformanceScore = null;
+        await FiltersChanged.InvokeAsync(Model);
+    }
+}
